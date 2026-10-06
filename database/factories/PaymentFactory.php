@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Lease;
 use App\Models\Payment;
+use App\Models\Rental;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,10 +17,9 @@ class PaymentFactory extends Factory
     {
         return [
             'payment_code' => 'PAY-' . strtoupper($this->faker->bothify('#####??')),
-            'lease_id' => Lease::factory(),
-            'period_month' => now()->format('Y-m'),
-            'amount' => 1200000.00,
+            'rental_id' => Rental::factory(),
             'method' => $this->faker->randomElement(['cash', 'qris', 'bank_transfer', 'e_wallet']),
+            'amount' => $this->faker->randomElement([100000.00, 150000.00, 200000.00]),
             'status' => 'paid',
             'paid_at' => now(),
         ];

@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\Facility;
-use App\Models\Lease;
-use App\Models\MaintenanceRequest;
+use App\Models\Category;
+use App\Models\Console;
+use App\Models\Game;
+use App\Models\MaintenanceLog;
 use App\Models\Payment;
-use App\Models\Property;
-use App\Models\PropertyType;
-use App\Models\Room;
+use App\Models\Rental;
+use App\Models\RentalItem;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,107 +29,100 @@ class DatabaseRelationshipsTest extends TestCase
     }
 
     /** @test */
-    public function it_verifies_one_to_many_property_type_and_properties_relationship()
+    public function it_verifies_one_to_many_category_and_consoles_relationship()
     {
-        $type = PropertyType::factory()->create();
-        $property = Property::factory()->create(['property_type_id' => $type->id]);
+        $category = Category::factory()->create();
+        $console1 = Console::factory()->create(['category_id' => $category->id]);
+        $console2 = Console::factory()->create(['category_id' => $category->id]);
 
-        $this->assertCount(1, $type->properties);
-        $this->assertTrue($property->propertyType->is($type));
+        $this->assertCount(2, $category->consoles);
+        $this->assertTrue($console1->category->is($category));
+        $this->assertTrue($console2->category->is($category));
     }
 
     /** @test */
-    public function it_verifies_one_to_many_owner_user_and_properties_relationship()
+    public function it_verifies_many_to_many_console_and_games_relationship_with_pivot_data()
     {
-        $owner = User::factory()->create(['role' => 'owner']);
-        $property = Property::factory()->create(['owner_id' => $owner->id]);
+        $console = Console::factory()->create();
+        $game = Game::factory()->create();
 
-        $this->assertCount(1, $owner->ownedProperties);
-        $this->assertTrue($property->owner->is($owner));
-    }
-
-    /** @test */
-    public function it_verifies_one_to_many_property_and_rooms_relationship()
-    {
-        $property = Property::factory()->create();
-        $room1 = Room::factory()->create(['property_id' => $property->id]);
-        $room2 = Room::factory()->create(['property_id' => $property->id]);
-
-        $this->assertCount(2, $property->rooms);
-        $this->assertTrue($room1->property->is($property));
-        $this->assertTrue($room2->property->is($property));
-    }
-
-    /** @test */
-    public function it_verifies_many_to_many_room_and_facilities_relationship_with_pivot_data()
-    {
-        $room = Room::factory()->create();
-        $facility = Facility::factory()->create();
-
-        $room->facilities()->attach($facility->id, [
-            'condition' => 'good',
+        $console->games()->attach($game->id, [
             'installed_at' => now(),
+            'storage_size_gb' => 85,
         ]);
 
-        $this->assertTrue($room->facilities->contains($facility));
-        $this->assertEquals('good', $room->facilities->first()->pivot->condition);
-        $this->assertTrue($facility->rooms->contains($room));
+        $this->assertTrue($console->games->contains($game));
+        $this->assertEquals(85, $console->games->first()->pivot->storage_size_gb);
+        $this->assertTrue($game->consoles->contains($console));
     }
 
     /** @test */
-    public function it_verifies_one_to_many_tenant_user_and_leases_relationship()
+    public function it_verifies_one_to_many_user_and_rentals_relationship()
     {
-        $tenant = User::factory()->create(['role' => 'tenant']);
-        $lease = Lease::factory()->create(['tenant_id' => $tenant->id]);
+        $user = User::factory()->create();
+        $rental = Rental::factory()->create(['user_id' => $user->id]);
 
-        $this->assertCount(1, $tenant->leases);
-        $this->assertTrue($lease->tenant->is($tenant));
+        $this->assertCount(1, $user->rentals);
+        $this->assertTrue($rental->user->is($user));
     }
 
     /** @test */
-    public function it_verifies_one_to_many_lease_and_payments_relationship()
+    public function it_verifies_many_to_many_rental_and_consoles_relationship()
     {
-        $lease = Lease::factory()->create();
-        $payment = Payment::factory()->create(['lease_id' => $lease->id]);
+        $rental = Rental::factory()->create();
+        $console = Console::factory()->create();
 
-        $this->assertCount(1, $lease->payments);
-        $this->assertTrue($payment->lease->is($lease));
+        RentalItem::factory()->create([
+            'rental_id' => $rental->id,
+            'console_id' => $console->id,
+            'duration_days' => 2,
+            'daily_rate_snapshot' => 75000.00,
+            'subtotal' => 150000.00,
+        ]);
+
+        $this->assertTrue($rental->consoles->contains($console));
+        $this->assertEquals(150000.00, $rental->consoles->first()->pivot->subtotal);
+    }
+
+    /** @test */
+    public function it_verifies_one_to_one_rental_and_payment_relationship()
+    {
+        $rental = Rental::factory()->create();
+        $payment = Payment::factory()->create(['rental_id' => $rental->id]);
+
+        $this->assertTrue($rental->payment->is($payment));
+        $this->assertTrue($payment->rental->is($rental));
     }
 
     /** @test */
     public function it_verifies_has_many_through_user_to_payments_relationship()
     {
-        $tenant = User::factory()->create(['role' => 'tenant']);
-        $lease = Lease::factory()->create(['tenant_id' => $tenant->id]);
-        $payment = Payment::factory()->create(['lease_id' => $lease->id]);
+        $user = User::factory()->create();
+        $rental = Rental::factory()->create(['user_id' => $user->id]);
+        $payment = Payment::factory()->create(['rental_id' => $rental->id]);
 
-        $this->assertCount(1, $tenant->payments);
-        $this->assertTrue($tenant->payments->first()->is($payment));
+        $this->assertCount(1, $user->payments);
+        $this->assertTrue($user->payments->first()->is($payment));
     }
 
     /** @test */
-    public function it_verifies_has_many_through_property_to_leases_relationship()
+    public function it_verifies_has_many_through_category_to_rental_items_relationship()
     {
-        $property = Property::factory()->create();
-        $room = Room::factory()->create(['property_id' => $property->id]);
-        $lease = Lease::factory()->create(['room_id' => $room->id]);
+        $category = Category::factory()->create();
+        $console = Console::factory()->create(['category_id' => $category->id]);
+        $rentalItem = RentalItem::factory()->create(['console_id' => $console->id]);
 
-        $this->assertCount(1, $property->leases);
-        $this->assertTrue($property->leases->first()->is($lease));
+        $this->assertCount(1, $category->rentalItems);
+        $this->assertTrue($category->rentalItems->first()->is($rentalItem));
     }
 
     /** @test */
-    public function it_verifies_one_to_many_room_and_maintenance_requests_relationship()
+    public function it_verifies_one_to_many_console_and_maintenance_logs_relationship()
     {
-        $room = Room::factory()->create();
-        $tenant = User::factory()->create(['role' => 'tenant']);
-        $ticket = MaintenanceRequest::factory()->create([
-            'room_id' => $room->id,
-            'tenant_id' => $tenant->id,
-        ]);
+        $console = Console::factory()->create();
+        $log = MaintenanceLog::factory()->create(['console_id' => $console->id]);
 
-        $this->assertCount(1, $room->maintenanceRequests);
-        $this->assertTrue($ticket->room->is($room));
-        $this->assertTrue($ticket->tenant->is($tenant));
+        $this->assertCount(1, $console->maintenanceLogs);
+        $this->assertTrue($log->console->is($console));
     }
 }

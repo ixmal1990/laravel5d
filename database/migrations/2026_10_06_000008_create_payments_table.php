@@ -11,11 +11,10 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->string('payment_code')->unique();
-            $table->foreignId('lease_id')->constrained()->onDelete('cascade');
-            $table->string('period_month'); // e.g. 2026-10
-            $table->decimal('amount', 10, 2);
+            $table->foreignId('rental_id')->unique()->constrained()->onDelete('cascade');
             $table->enum('method', ['cash', 'qris', 'bank_transfer', 'e_wallet']);
-            $table->enum('status', ['pending', 'paid', 'late', 'refunded'])->default('pending');
+            $table->decimal('amount', 10, 2);
+            $table->enum('status', ['pending', 'paid', 'failed', 'refunded'])->default('pending');
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });

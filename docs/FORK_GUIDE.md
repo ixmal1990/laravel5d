@@ -31,7 +31,7 @@ Tambahkan seluruh file yang baru dibuat dan lakukan commit:
 
 ```bash
 git add .
-git commit -m "[Assignment 1] Table Relationships: SmartKost Management - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB"
+git commit -m "[Assignment 1] Table Relationships: RentPS PlayStation Rental - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB"
 ```
 
 ---
@@ -53,13 +53,13 @@ git push -u origin feature/database-relations
 3. Pastikan **Base repository** mengarah ke `mirzayogy/laravel5d` branch `main`.
 4. Isi judul PR:
    ```text
-   [Assignment 1] Table Relationships: SmartKost Management - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB
+   [Assignment 1] Table Relationships: RentPS PlayStation Rental - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB
    ```
 5. Salin dan tempel format deskripsi PR berikut:
 
 ```markdown
 ## Assignment
-Assignment 1: Table Relationships (SmartKost — Sistem Informasi Manajemen Sewa Kost & Kontrakan).
+Assignment 1: Table Relationships (RentPS — Sistem Informasi Penyewaan PlayStation).
 
 | | |
 |---|---|
@@ -73,10 +73,10 @@ Assignment 1: Table Relationships (SmartKost — Sistem Informasi Manajemen Sewa
 ## What was done
 | Job | Description | Status |
 |---|---|---|
-| J1 | Database design & ERD (SmartKost Management) | ✅ Done |
+| J1 | Database design & ERD (RentPS Penyewaan PlayStation) | ✅ Done |
 | J2 | Migrations & schema definitions (10 tables) | ✅ Done |
-| J3 | Models & Eloquent relationships (10 relationship types tested) | ✅ Done |
-| J4 | Factories & seeders (PropertyTypes, Properties, Rooms, Facilities, Leases, Payments, Tickets) | ✅ Done |
+| J3 | Models & Eloquent relationships (9 relationship types tested) | ✅ Done |
+| J4 | Factories & seeders (Categories, Consoles, Games, Rentals, Payments) | ✅ Done |
 | J5 | Automated Feature Test Suite & progress report | ✅ Done |
 
 ## Proof

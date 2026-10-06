@@ -12,10 +12,9 @@ class Payment extends Model
 
     protected $fillable = [
         'payment_code',
-        'lease_id',
-        'period_month',
-        'amount',
+        'rental_id',
         'method',
+        'amount',
         'status',
         'paid_at',
     ];
@@ -25,10 +24,10 @@ class Payment extends Model
     ];
 
     /**
-     * Get the lease contract associated with the payment (Inverse 1:N relationship).
+     * Get the rental transaction associated with the payment (Inverse 1:1 relationship).
      */
-    public function lease(): BelongsTo
+    public function rental(): BelongsTo
     {
-        return $this->belongsTo(Lease::class);
+        return $this->belongsTo(Rental::class);
     }
 }

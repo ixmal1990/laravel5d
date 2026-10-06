@@ -46,34 +46,18 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the properties owned by this user (1:N relationship).
+     * Get the rentals for the user (1:N relationship).
      */
-    public function ownedProperties(): HasMany
+    public function rentals(): HasMany
     {
-        return $this->hasMany(Property::class, 'owner_id');
+        return $this->hasMany(Rental::class);
     }
 
     /**
-     * Get the lease contracts for this tenant user (1:N relationship).
-     */
-    public function leases(): HasMany
-    {
-        return $this->hasMany(Lease::class, 'tenant_id');
-    }
-
-    /**
-     * Get payments made by the tenant through lease contracts (Has-Many-Through relationship).
+     * Get payments made by the user through rentals (Has-Many-Through relationship).
      */
     public function payments(): HasManyThrough
     {
-        return $this->hasManyThrough(Payment::class, Lease::class, 'tenant_id', 'lease_id');
-    }
-
-    /**
-     * Get maintenance requests submitted by this tenant (1:N relationship).
-     */
-    public function maintenanceRequests(): HasMany
-    {
-        return $this->hasMany(MaintenanceRequest::class, 'tenant_id');
+        return $this->hasManyThrough(Payment::class, Rental::class);
     }
 }

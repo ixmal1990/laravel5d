@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
             $table->string('nik', 16)->unique();
             $table->string('emergency_contact')->nullable();
-            $table->string('occupation')->nullable(); // e.g. Mahasiswa UNISKA, Karyawan Swasta
             $table->text('bio')->nullable();
             $table->string('avatar_url')->nullable();
             $table->timestamps();

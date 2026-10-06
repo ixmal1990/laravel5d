@@ -7,7 +7,7 @@
 | **Student Name** | Muhammad Ixmal Alimudin |
 | **NPM** | 2410010280 |
 | **Class** | TI 5D REG BJB |
-| **Project Title** | SmartKost — Sistem Informasi Manajemen Sewa Kost & Kontrakan |
+| **Project Title** | RentPS — Sistem Informasi Penyewaan PlayStation & Console Gaming |
 | **Phase** | P01: Database Design and Table Relationships |
 | **Status** | ✅ Done (2026-10-06) |
 | **Target Repository** | `mirzayogy/laravel5d` |
@@ -31,15 +31,14 @@
 ## 2. Implemented Eloquent Relationships
 
 1. **`User` 1:1 `UserProfile`** (`hasOne` & `belongsTo`)
-2. **`PropertyType` 1:N `Property`** (`hasMany` & `belongsTo`)
-3. **`User` (Owner) 1:N `Property`** (`hasMany` & `belongsTo`)
-4. **`Property` 1:N `Room`** (`hasMany` & `belongsTo`)
-5. **`Room` N:M `Facility`** (`belongsToMany` via `facility_room` with pivot columns `condition`, `installed_at`)
-6. **`User` (Tenant) 1:N `Lease`** (`hasMany` & `belongsTo`)
-7. **`Lease` 1:N `Payment`** (`hasMany` & `belongsTo`)
-8. **`User` Has-Many-Through `Payment`** (`hasManyThrough` via `Lease`)
-9. **`Property` Has-Many-Through `Lease`** (`hasManyThrough` via `Room`)
-10. **`Room` 1:N `MaintenanceRequest`** (`hasMany` & `belongsTo`)
+2. **`Category` 1:N `Console`** (`hasMany` & `belongsTo`)
+3. **`Console` N:M `Game`** (`belongsToMany` via `console_game` with pivot columns `installed_at`, `storage_size_gb`)
+4. **`User` 1:N `Rental`** (`hasMany` & `belongsTo`)
+5. **`Rental` N:M `Console`** (`belongsToMany` via `rental_items` with pivot columns `duration_days`, `subtotal`, `late_fee`)
+6. **`Rental` 1:1 `Payment`** (`hasOne` & `belongsTo`)
+7. **`User` Has-Many-Through `Payment`** (`hasManyThrough` via `Rental`)
+8. **`Category` Has-Many-Through `RentalItem`** (`hasManyThrough` via `Console`)
+9. **`Console` 1:N `MaintenanceLog`** (`hasMany` & `belongsTo`)
 
 ---
 
@@ -59,6 +58,6 @@ php artisan test --filter=DatabaseRelationshipsTest
 
 ## 4. Next Phase Roadmap (P02)
 
-- Authentication system & role authorization (Owner vs Tenant vs Staff).
-- CRUD views & controller logic for Properties, Rooms, and Facilities catalog.
-- Monthly rent billing, QRIS payment simulation, and tenant maintenance tickets.
+- Authentication system & role authorization (Admin vs Customer).
+- CRUD views & controller logic for Consoles, Categories, and Games catalog.
+- Rental booking workflow & QRIS payment processing simulation.

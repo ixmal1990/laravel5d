@@ -8,17 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('facilities', function (Blueprint $table) {
+        Schema::create('games', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // e.g. AC 1PK, Wi-Fi 100Mbps, Kamar Mandi Dalam, Water Heater
-            $table->string('icon')->nullable();
-            $table->text('description')->nullable();
+            $table->string('title');
+            $table->string('publisher');
+            $table->string('genre');
+            $table->integer('min_age_rating')->default(13);
+            $table->integer('storage_req_gb');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('facilities');
+        Schema::dropIfExists('games');
     }
 };
