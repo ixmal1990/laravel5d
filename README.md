@@ -1,58 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SmartKost — Sistem Informasi Manajemen Sewa Kost & Kontrakan
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Tugas 1 (Assignment 1)**: Database Design and Table Relationships  
+> **Mata Kuliah**: Pemrograman Berbasis Objek 2 (PBO 2) / Laravel Framework  
+> **Dosen Pengampu**: Mirza Yogy Utama  
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 👤 Identitas Mahasiswa
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Informasi | Detail |
+|---|---|
+| **Nama** | Muhammad Ixmal Alimudin |
+| **NPM** | 2410010280 |
+| **Kelas** | TI 5D REG BJB |
+| **Repositori Fork** | [ixmal1990/laravel5d](https://github.com/ixmal1990/laravel5d) |
+| **Upstream Repositori** | [mirzayogy/laravel5d](https://github.com/mirzayogy/laravel5d) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📌 Ringkasan Proyek
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**SmartKost** adalah aplikasi sistem informasi berbasis web yang dirancang menggunakan framework Laravel 11/12 untuk mengelola bisnis persewaan rumah kost dan kontrakan. Sistem ini memfasilitasi pencatatan lokasi properti, kategori tipe hunian, kamar sewa, katalog fasilitas kamar, transaksi kontrak sewa (*lease*), tagihan pembayaran bulanan, hingga pengajuan perbaikan/perawatan kamar (*maintenance requests*).
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🗄️ Daftar Entitas & Tabel Database
 
-## Agentic Development
+Sistem ini memiliki **10 tabel database** yang saling terhubung:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+1. **`users`**: Data pengguna (Owner, Tenant, Staff).
+2. **`user_profiles`**: Profil detail pengguna (NIK, kontak darurat, pekerjaan, avatar).
+3. **`property_types`**: Kategori tipe hunian (Kost Putra, Kost Putri, Kost Exclusive, Kontrakan Rumah).
+4. **`properties`**: Lokasi properti kost (nama properti, pemilik/owner, alamat, aturan kost).
+5. **`rooms`**: Unit kamar sewa (nomor kamar, tipe kamar, tarif sewa bulanan, status kamar).
+6. **`facilities`**: Katalog fasilitas kamar (AC, Wi-Fi 100Mbps, Kamar Mandi Dalam, Water Heater).
+7. **`facility_room`**: Tabel pivot N:M antara kamar & fasilitas (`condition`, `installed_at`).
+8. **`leases`**: Kontrak transaksi sewa (kode kontrak, penyewa/tenant, kamar, tanggal sewa, deposit).
+9. **`payments`**: Transaksi pembayaran sewa (periode bulan, metode pembayaran, jumlah, status).
+10. **`maintenance_requests`**: Tiket pengaduan keluhan & perbaikan kamar oleh penyewa.
+
+---
+
+## 🔗 Matriks Relasi Eloquent
+
+| Relasi | Model Asal | Model Tujuan | Jenis Relasi | Keterangan |
+|---|---|---|---|---|
+| 1 | `User` | `UserProfile` | **One-to-One (1:1)** | Profil pengguna terhubung 1:1 dengan User |
+| 2 | `PropertyType` | `Property` | **One-to-Many (1:N)** | Kategori tipe hunian membawahi banyak properti |
+| 3 | `User` (Owner) | `Property` | **One-to-Many (1:N)** | Pemilik (*Owner*) memiliki banyak lokasi properti |
+| 4 | `Property` | `Room` | **One-to-Many (1:N)** | Lokasi properti memiliki banyak unit kamar |
+| 5 | `Room` | `Facility` | **Many-to-Many (N:M)** | Kamar dilengkapi fasilitas melalui `facility_room` |
+| 6 | `User` (Tenant) | `Lease` | **One-to-Many (1:N)** | Penyewa (*Tenant*) memiliki kontrak transaksi sewa |
+| 7 | `Lease` | `Payment` | **One-to-Many (1:N)** | Kontrak sewa memiliki catatan tagihan pembayaran |
+| 8 | `User` | `Payment` | **Has-Many-Through** | Mengakses pembayaran Penyewa melalui kontrak Lease |
+| 9 | `Property` | `Lease` | **Has-Many-Through** | Mengakses kontrak sewa di Properti melalui unit Room |
+| 10 | `Room` | `MaintenanceRequest` | **One-to-Many (1:N)** | Kamar memiliki tiket keluhan perbaikan |
+
+---
+
+## 📄 Dokumentasi Terkait
+
+- **Diagram ERD (Mermaid)**: [`docs/database/erd.md`](docs/database/erd.md)
+- **Laporan Progres P01**: [`docs/progress/P01-database-design.md`](docs/progress/P01-database-design.md)
+- **Panduan Fork & Pull Request**: [`docs/FORK_GUIDE.md`](docs/FORK_GUIDE.md)
+
+---
+
+## 🧪 Cara Verifikasi & Pengujian
+
+Jalankan perintah berikut di terminal:
 
 ```bash
-composer require laravel/boost --dev
+# 1. Jalankan migrasi dan seeder
+php artisan migrate:fresh --seed
 
-php artisan boost:install
+# 2. Jalankan pengujian otomatis untuk relasi database
+php artisan test --filter=DatabaseRelationshipsTest
 ```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
