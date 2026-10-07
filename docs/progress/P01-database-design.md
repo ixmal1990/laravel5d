@@ -1,64 +1,45 @@
 # Progress Report Phase P01 — Database Design and Table Relationships
 
-## Identity
+## Assignment
 
-| Information | Detail |
+**Assignment 1: Table Relationships** for SmartKost Management (Laravel, Blade).
+
+| | |
 |---|---|
-| **Student Name** | Muhammad Ixmal Alimudin |
+| **Student** | Muhammad Ixmal Alimudin |
 | **NPM** | 2410010280 |
 | **Class** | TI 5D REG BJB |
-| **Project Title** | SmartKost — Sistem Informasi Manajemen Sewa Kost & Kontrakan |
 | **Phase** | P01: Database Design and Table Relationships |
 | **Status** | ✅ Done (2026-10-07) |
-| **Target Repository** | `mirzayogy/laravel5d` |
-| **Fork Repository** | `ixmal1990/laravel5d` |
+| **Fork / branch** | [ixmal1990/laravel5d](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations) · `feature/database-relations` |
 
----
+## What was done
 
-## 1. Job Progress Summary
+| Job | Description | Status |
+|---|---|---|
+| J1 | Database design and ERD with Mermaid | ✅ Done |
+| J2 | Migrations: 10 tables plus pivot tables | ✅ Done |
+| J3 | Eloquent models and relationships | ✅ Done |
+| J4 | Factories and seeders | ✅ Done |
+| J5 | README and fork guide | ✅ Done |
 
-| Job ID | Task / Work Description | Status | Proof / Location |
-|---|---|---|---|
-| **J1** | Database design, entity relationship definitions & Mermaid ERD | ✅ Done | [`docs/database/erd.md`](../database/erd.md) |
-| **J2** | Database migrations for 10 tables (including pivot tables & schema definitions) | ✅ Done | [`database/migrations`](../../database/migrations) |
-| **J3** | Eloquent models & relationship methods (1:1, 1:N, N:M with pivot attributes, HasManyThrough) | ✅ Done | [`app/Models`](../../app/Models) |
-| **J4** | Factories and Seeder for complete realistic dataset | ✅ Done | [`database/factories`](../../database/factories), [`database/seeders/DatabaseSeeder.php`](../../database/seeders/DatabaseSeeder.php) |
-| **J5** | Automated feature unit tests verifying all Eloquent relationships | ✅ Done | [`tests/Feature/DatabaseRelationshipsTest.php`](../../tests/Feature/DatabaseRelationshipsTest.php) |
-| **J6** | README, progress report, & fork submission guide | ✅ Done | [`README.md`](../../README.md), [`docs/FORK_GUIDE.md`](../FORK_GUIDE.md) |
+Relationship types covered: One-to-One, One-to-Many, Many-to-Many, Many-to-Many with pivot data (`condition`, `installed_at`), and Has-Many-Through.
 
----
+## Proof
+- Progress report with proof for every job: [`docs/progress/P01-database-design.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/progress/P01-database-design.md)
+- ERD: [`docs/database/erd.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/database/erd.md)
+- Migrations: [`database/migrations`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/migrations)
+- Models: [`app/Models`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/app/Models)
+- Factories and seeders: [`database/factories`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/factories), [`database/seeders`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/seeders)
 
-## 2. Implemented Eloquent Relationships
-
-1. **`User` 1:1 `UserProfile`** (`hasOne` & `belongsTo`)
-2. **`PropertyType` 1:N `Property`** (`hasMany` & `belongsTo`)
-3. **`User` (Owner) 1:N `Property`** (`hasMany` & `belongsTo`)
-4. **`Property` 1:N `Room`** (`hasMany` & `belongsTo`)
-5. **`Room` N:M `Facility`** (`belongsToMany` via `facility_room` with pivot columns `condition`, `installed_at`)
-6. **`User` (Tenant) 1:N `Lease`** (`hasMany` & `belongsTo`)
-7. **`Lease` 1:N `Payment`** (`hasMany` & `belongsTo`)
-8. **`User` Has-Many-Through `Payment`** (`hasManyThrough` via `Lease`)
-9. **`Property` Has-Many-Through `Lease`** (`hasManyThrough` via `Room`)
-10. **`Room` 1:N `MaintenanceRequest`** (`hasMany` & `belongsTo`)
-
----
-
-## 3. How to Verify Implementation
-
-Run the following commands in terminal:
-
+## How to verify
 ```bash
-# 1. Run fresh migrations with initial seed data
+composer install
+cp .env.example .env
+php artisan key:generate
 php artisan migrate:fresh --seed
-
-# 2. Run automated test suite verifying all relationships
-php artisan test --filter=DatabaseRelationshipsTest
 ```
 
----
-
-## 4. Next Phase Roadmap (P02)
-
-- Authentication system & role authorization (Owner vs Tenant vs Staff).
-- CRUD views & controller logic for Properties, Rooms, and Facilities catalog.
-- Monthly rent billing, QRIS payment simulation, and tenant maintenance tickets.
+## Not done yet
+- Automated tests
+- Authentication, CRUD pages, and dashboard (planned for the next phases)
