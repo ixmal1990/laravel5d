@@ -18,8 +18,7 @@ class DatabaseRelationshipsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_verifies_one_to_one_user_and_user_profile_relationship()
+    public function test_it_verifies_one_to_one_user_and_user_profile_relationship()
     {
         $user = User::factory()->create();
         $profile = UserProfile::factory()->create(['user_id' => $user->id]);
@@ -28,8 +27,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($profile->user->is($user));
     }
 
-    /** @test */
-    public function it_verifies_one_to_many_property_type_and_properties_relationship()
+    public function test_it_verifies_one_to_many_property_type_and_properties_relationship()
     {
         $type = PropertyType::factory()->create();
         $property = Property::factory()->create(['property_type_id' => $type->id]);
@@ -38,8 +36,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($property->propertyType->is($type));
     }
 
-    /** @test */
-    public function it_verifies_one_to_many_owner_user_and_properties_relationship()
+    public function test_it_verifies_one_to_many_owner_user_and_properties_relationship()
     {
         $owner = User::factory()->create(['role' => 'owner']);
         $property = Property::factory()->create(['owner_id' => $owner->id]);
@@ -48,8 +45,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($property->owner->is($owner));
     }
 
-    /** @test */
-    public function it_verifies_one_to_many_property_and_rooms_relationship()
+    public function test_it_verifies_one_to_many_property_and_rooms_relationship()
     {
         $property = Property::factory()->create();
         $room1 = Room::factory()->create(['property_id' => $property->id]);
@@ -60,8 +56,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($room2->property->is($property));
     }
 
-    /** @test */
-    public function it_verifies_many_to_many_room_and_facilities_relationship_with_pivot_data()
+    public function test_it_verifies_many_to_many_room_and_facilities_relationship_with_pivot_data()
     {
         $room = Room::factory()->create();
         $facility = Facility::factory()->create();
@@ -76,8 +71,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($facility->rooms->contains($room));
     }
 
-    /** @test */
-    public function it_verifies_one_to_many_tenant_user_and_leases_relationship()
+    public function test_it_verifies_one_to_many_tenant_user_and_leases_relationship()
     {
         $tenant = User::factory()->create(['role' => 'tenant']);
         $lease = Lease::factory()->create(['tenant_id' => $tenant->id]);
@@ -86,8 +80,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($lease->tenant->is($tenant));
     }
 
-    /** @test */
-    public function it_verifies_one_to_many_lease_and_payments_relationship()
+    public function test_it_verifies_one_to_many_lease_and_payments_relationship()
     {
         $lease = Lease::factory()->create();
         $payment = Payment::factory()->create(['lease_id' => $lease->id]);
@@ -96,8 +89,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($payment->lease->is($lease));
     }
 
-    /** @test */
-    public function it_verifies_has_many_through_user_to_payments_relationship()
+    public function test_it_verifies_has_many_through_user_to_payments_relationship()
     {
         $tenant = User::factory()->create(['role' => 'tenant']);
         $lease = Lease::factory()->create(['tenant_id' => $tenant->id]);
@@ -107,8 +99,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($tenant->payments->first()->is($payment));
     }
 
-    /** @test */
-    public function it_verifies_has_many_through_property_to_leases_relationship()
+    public function test_it_verifies_has_many_through_property_to_leases_relationship()
     {
         $property = Property::factory()->create();
         $room = Room::factory()->create(['property_id' => $property->id]);
@@ -118,8 +109,7 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($property->leases->first()->is($lease));
     }
 
-    /** @test */
-    public function it_verifies_one_to_many_room_and_maintenance_requests_relationship()
+    public function test_it_verifies_one_to_many_room_and_maintenance_requests_relationship()
     {
         $room = Room::factory()->create();
         $tenant = User::factory()->create(['role' => 'tenant']);
