@@ -1,4 +1,4 @@
-# RentPS — Sistem Informasi Penyewaan PlayStation & Console Gaming
+# SmartKost — Sistem Informasi Manajemen Sewa Kost & Kontrakan
 
 > **Tugas 1 (Assignment 1)**: Database Design and Table Relationships  
 > **Mata Kuliah**: Pemrograman Berbasis Objek 2 (PBO 2) / Laravel Framework  
@@ -20,7 +20,7 @@
 
 ## 📌 Ringkasan Proyek
 
-**RentPS** adalah aplikasi sistem informasi berbasis web yang dirancang menggunakan framework Laravel 11/12 untuk mengelola bisnis penyewaan konsol gim (PlayStation 4, PlayStation 5, VR). Sistem ini memfasilitasi pencatatan inventaris unit konsol, katalog gim terinstall, transaksi penyewaan oleh pelanggan, pembayaran digital, hingga riwayat perawatan unit (*maintenance logs*).
+**SmartKost** adalah aplikasi sistem informasi berbasis web yang dirancang menggunakan framework Laravel 11/12 untuk mengelola bisnis persewaan rumah kost dan kontrakan. Sistem ini memfasilitasi pencatatan lokasi properti, kategori tipe hunian, kamar sewa, katalog fasilitas kamar, transaksi kontrak sewa (*lease*), tagihan pembayaran bulanan, hingga pengajuan perbaikan/perawatan kamar (*maintenance requests*).
 
 ---
 
@@ -28,16 +28,16 @@
 
 Sistem ini memiliki **10 tabel database** yang saling terhubung:
 
-1. **`users`**: Data pengguna (Admin, Staff, Customer).
-2. **`user_profiles`**: Profil detail pengguna (NIK, nomor darurat, bio, avatar).
-3. **`categories`**: Kategori konsol (PS4 Slim, PS4 Pro, PS5 Digital, PS5 Disc).
-4. **`consoles`**: Unit konsol fisik (Serial Number, nama unit, status, tarif sewa harian).
-5. **`games`**: Katalog gim gim PlayStation (judul, publisher, genre, spesifikasi storage).
-6. **`console_game`**: Tabel pivot N:M antara konsol & gim (`installed_at`, `storage_size_gb`).
-7. **`rentals`**: Transaksi penyewaan (kode rental, pelanggan, periode sewa, total harga, status).
-8. **`rental_items`**: Detail item rental / pivot N:M antara rental & konsol (`duration_days`, `subtotal`, `late_fee`).
-9. **`payments`**: Transaksi pembayaran penyewaan (metode pembayaran, jumlah, status, waktu bayar).
-10. **`maintenance_logs`**: Catatan servis & pemeliharaan unit konsol.
+1. **`users`**: Data pengguna (Owner, Tenant, Staff).
+2. **`user_profiles`**: Profil detail pengguna (NIK, kontak darurat, pekerjaan, avatar).
+3. **`property_types`**: Kategori tipe hunian (Kost Putra, Kost Putri, Kost Exclusive, Kontrakan Rumah).
+4. **`properties`**: Lokasi properti kost (nama properti, pemilik/owner, alamat, aturan kost).
+5. **`rooms`**: Unit kamar sewa (nomor kamar, tipe kamar, tarif sewa bulanan, status kamar).
+6. **`facilities`**: Katalog fasilitas kamar (AC, Wi-Fi 100Mbps, Kamar Mandi Dalam, Water Heater).
+7. **`facility_room`**: Tabel pivot N:M antara kamar & fasilitas (`condition`, `installed_at`).
+8. **`leases`**: Kontrak transaksi sewa (kode kontrak, penyewa/tenant, kamar, tanggal sewa, deposit).
+9. **`payments`**: Transaksi pembayaran sewa (periode bulan, metode pembayaran, jumlah, status).
+10. **`maintenance_requests`**: Tiket pengaduan keluhan & perbaikan kamar oleh penyewa.
 
 ---
 
@@ -46,14 +46,15 @@ Sistem ini memiliki **10 tabel database** yang saling terhubung:
 | Relasi | Model Asal | Model Tujuan | Jenis Relasi | Keterangan |
 |---|---|---|---|---|
 | 1 | `User` | `UserProfile` | **One-to-One (1:1)** | Profil pengguna terhubung 1:1 dengan User |
-| 2 | `Category` | `Console` | **One-to-Many (1:N)** | Kategori membawahi banyak unit konsol |
-| 3 | `Console` | `Game` | **Many-to-Many (N:M)** | Konsol memiliki banyak gim melalui `console_game` |
-| 4 | `User` | `Rental` | **One-to-Many (1:N)** | Pelanggan dapat membuat banyak transaksi rental |
-| 5 | `Rental` | `Console` | **Many-to-Many (N:M)** | Transaksi menyewa banyak konsol melalui `rental_items` |
-| 6 | `Rental` | `Payment` | **One-to-One (1:1)** | Setiap transaksi Memiliki 1 catatan pembayaran |
-| 7 | `User` | `Payment` | **Has-Many-Through** | Mengakses pembayaran User melalui transaksi Rental |
-| 8 | `Category` | `RentalItem` | **Has-Many-Through** | Mengakses rental item dari konsol dalam suatu kategori |
-| 9 | `Console` | `MaintenanceLog` | **One-to-Many (1:N)** | Unit konsol memiliki banyak log perawatan |
+| 2 | `PropertyType` | `Property` | **One-to-Many (1:N)** | Kategori tipe hunian membawahi banyak properti |
+| 3 | `User` (Owner) | `Property` | **One-to-Many (1:N)** | Pemilik (*Owner*) memiliki banyak lokasi properti |
+| 4 | `Property` | `Room` | **One-to-Many (1:N)** | Lokasi properti memiliki banyak unit kamar |
+| 5 | `Room` | `Facility` | **Many-to-Many (N:M)** | Kamar dilengkapi fasilitas melalui `facility_room` |
+| 6 | `User` (Tenant) | `Lease` | **One-to-Many (1:N)** | Penyewa (*Tenant*) memiliki kontrak transaksi sewa |
+| 7 | `Lease` | `Payment` | **One-to-Many (1:N)** | Kontrak sewa memiliki catatan tagihan pembayaran |
+| 8 | `User` | `Payment` | **Has-Many-Through** | Mengakses pembayaran Penyewa melalui kontrak Lease |
+| 9 | `Property` | `Lease` | **Has-Many-Through** | Mengakses kontrak sewa di Properti melalui unit Room |
+| 10 | `Room` | `MaintenanceRequest` | **One-to-Many (1:N)** | Kamar memiliki tiket keluhan perbaikan |
 
 ---
 

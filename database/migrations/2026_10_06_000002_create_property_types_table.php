@@ -8,19 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('games', function (Blueprint $table) {
+        Schema::create('property_types', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('publisher');
-            $table->string('genre');
-            $table->integer('min_age_rating')->default(13);
-            $table->integer('storage_req_gb');
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('games');
+        Schema::dropIfExists('property_types');
     }
 };

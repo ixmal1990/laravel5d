@@ -31,7 +31,7 @@ Tambahkan seluruh file yang baru dibuat dan lakukan commit:
 
 ```bash
 git add .
-git commit -m "[Assignment 1] Table Relationships: RentPS PlayStation Rental - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB"
+git commit -m "[Assignment 1] Table Relationships: SmartKost Management - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB"
 ```
 
 ---
@@ -53,13 +53,13 @@ git push -u origin feature/database-relations
 3. Pastikan **Base repository** mengarah ke `mirzayogy/laravel5d` branch `main`.
 4. Isi judul PR:
    ```text
-   [Assignment 1] Table Relationships: RentPS PlayStation Rental - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB
+   [Assignment 1] Table Relationships: SmartKost Management - Muhammad Ixmal Alimudin - 2410010280 - TI 5D REG BJB
    ```
 5. Salin dan tempel format deskripsi PR berikut:
 
 ```markdown
 ## Assignment
-Assignment 1: Table Relationships (RentPS — Sistem Informasi Penyewaan PlayStation).
+Assignment 1: Table Relationships for SmartKost Management (Laravel, Blade).
 
 | | |
 |---|---|
@@ -67,27 +67,34 @@ Assignment 1: Table Relationships (RentPS — Sistem Informasi Penyewaan PlaySta
 | **NPM** | 2410010280 |
 | **Class** | TI 5D REG BJB |
 | **Phase** | P01: Database Design and Table Relationships |
-| **Status** | ✅ Done (2026-10-06) |
-| **Fork / branch** | [ixmal1990/laravel5d (feature/database-relations)](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations) |
+| **Status** | ✅ Done (2026-10-07) |
+| **Fork / branch** | [ixmal1990/laravel5d](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations) · `feature/database-relations` |
 
 ## What was done
+
 | Job | Description | Status |
 |---|---|---|
-| J1 | Database design & ERD (RentPS Penyewaan PlayStation) | ✅ Done |
-| J2 | Migrations & schema definitions (10 tables) | ✅ Done |
-| J3 | Models & Eloquent relationships (9 relationship types tested) | ✅ Done |
-| J4 | Factories & seeders (Categories, Consoles, Games, Rentals, Payments) | ✅ Done |
-| J5 | Automated Feature Test Suite & progress report | ✅ Done |
+| J1 | Database design and ERD with Mermaid | ✅ Done |
+| J2 | Migrations: 10 tables plus pivot tables | ✅ Done |
+| J3 | Eloquent models and relationships | ✅ Done |
+| J4 | Factories and seeders | ✅ Done |
+| J5 | README and fork guide | ✅ Done |
+
+Relationship types covered: One-to-One, One-to-Many, Many-to-Many, Many-to-Many with pivot data (`condition`, `installed_at`), and Has-Many-Through.
 
 ## Proof
-- Progress report: [`docs/progress/P01-database-design.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/progress/P01-database-design.md)
-- ERD documentation: [`docs/database/erd.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/database/erd.md)
-- Relationship unit/feature test suite: [`tests/Feature/DatabaseRelationshipsTest.php`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/tests/Feature/DatabaseRelationshipsTest.php)
+- Progress report with proof for every job: [`docs/progress/P01-database-design.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/progress/P01-database-design.md)
+- ERD: [`docs/database/erd.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/database/erd.md)
+- Migrations: [`database/migrations`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/migrations)
+- Models: [`app/Models`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/app/Models)
+- Factories and seeders: [`database/factories`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/factories), [`database/seeders`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/seeders)
 
 ## How to verify
 ```bash
+composer install
+cp .env.example .env
+php artisan key:generate
 php artisan migrate:fresh --seed
-php artisan test
 ```
 ```
 

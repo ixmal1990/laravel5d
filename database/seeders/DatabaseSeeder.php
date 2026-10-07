@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
-use App\Models\Console;
-use App\Models\Game;
-use App\Models\MaintenanceLog;
+use App\Models\Facility;
+use App\Models\Lease;
+use App\Models\MaintenanceRequest;
 use App\Models\Payment;
-use App\Models\Rental;
-use App\Models\RentalItem;
+use App\Models\Property;
+use App\Models\PropertyType;
+use App\Models\Room;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\Seeder;
@@ -20,149 +20,127 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create Admin & Staff Users
-        $admin = User::create([
+        // 1. Create Owner User
+        $owner = User::create([
             'name' => 'Muhammad Ixmal Alimudin',
-            'email' => 'ixmal@rentps.com',
+            'email' => 'ixmal@smartkost.com',
             'password' => bcrypt('password123'),
-            'role' => 'admin',
+            'role' => 'owner',
             'phone' => '081234567890',
             'address' => 'Jl. Ahmad Yani KM 36, Banjarbaru',
         ]);
 
         UserProfile::create([
-            'user_id' => $admin->id,
+            'user_id' => $owner->id,
             'nik' => '6371012809900001',
             'emergency_contact' => '089876543210',
-            'bio' => 'Owner & Administrator RentPS System',
+            'occupation' => 'Pemilik Kost & Pengusaha',
+            'bio' => 'Owner & Property Manager SmartKost System',
             'avatar_url' => 'https://avatars.githubusercontent.com/u/204449595?v=4',
         ]);
 
-        // Create 3 Customer Users with Profiles
-        $customers = User::factory(3)->create(['role' => 'customer']);
-        foreach ($customers as $customer) {
-            UserProfile::factory()->create(['user_id' => $customer->id]);
+        // Create 3 Tenant Users with Profiles
+        $tenants = User::factory(3)->create(['role' => 'tenant']);
+        foreach ($tenants as $tenant) {
+            UserProfile::factory()->create(['user_id' => $tenant->id]);
         }
 
-        // 2. Create Console Categories
-        $categoriesData = [
-            [
-                'name' => 'PlayStation 4 Slim',
-                'slug' => 'ps4-slim',
-                'description' => 'Konsol PS4 Slim hemat daya dengan koleksi game terlengkap',
-                'base_daily_rate' => 50000.00,
-            ],
-            [
-                'name' => 'PlayStation 4 Pro',
-                'slug' => 'ps4-pro',
-                'description' => 'Konsol PS4 Pro mendukung grafis 4K HDR',
-                'base_daily_rate' => 75000.00,
-            ],
-            [
-                'name' => 'PlayStation 5 Digital Edition',
-                'slug' => 'ps5-digital',
-                'description' => 'Konsol generasi terbaru ultra-fast SSD 120fps',
-                'base_daily_rate' => 120000.00,
-            ],
-            [
-                'name' => 'PlayStation 5 Disc Edition',
-                'slug' => 'ps5-disc',
-                'description' => 'Konsol PS5 flagship dengan 4K Ultra HD Blu-ray',
-                'base_daily_rate' => 150000.00,
-            ],
+        // 2. Create Property Types
+        $typeData = [
+            ['name' => 'Kost Putra', 'slug' => 'kost-putra', 'description' => 'Khusus hunian mahasiswa & pekerja pria'],
+            ['name' => 'Kost Putri', 'slug' => 'kost-putri', 'description' => 'Khusus hunian mahasiswi & pekerja wanita dengan akses keamanan 24 jam'],
+            ['name' => 'Kost Exclusive Campur', 'slug' => 'kost-exclusive', 'description' => 'Kost bebas dengan fasilitas lengkap setara hotel bintang 3'],
+            ['name' => 'Kontrakan Rumah', 'slug' => 'kontrakan-rumah', 'description' => 'Rumah sewa keluarga 2-3 kamar tidur'],
         ];
 
-        $categories = [];
-        foreach ($categoriesData as $cat) {
-            $categories[] = Category::create($cat);
+        $propertyTypes = [];
+        foreach ($typeData as $t) {
+            $propertyTypes[] = PropertyType::create($t);
         }
 
-        // 3. Create Consoles
-        $consoles = [];
-        $serialCounter = 101;
-        foreach ($categories as $cat) {
-            for ($i = 1; $i <= 2; $i++) {
-                $consoles[] = Console::create([
-                    'category_id' => $cat->id,
-                    'serial_number' => 'SN-PS-' . $serialCounter++,
-                    'name' => $cat->name . ' Unit #' . $i,
-                    'status' => 'available',
-                    'daily_rate' => $cat->base_daily_rate,
-                    'condition' => 'excellent',
-                ]);
-            }
-        }
+        // 3. Create Properties
+        $property1 = Property::create([
+            'property_type_id' => $propertyTypes[2]->id, // Kost Exclusive Campur
+            'owner_id' => $owner->id,
+            'name' => 'SmartKost Executive Banjarbaru',
+            'address' => 'Jl. Uniska No. 12, Sei Besar, Banjarbaru',
+            'city' => 'Banjarbaru',
+            'description' => 'Kost exclusive terdekat dari kampus UNISKA Banjarbaru dengan fasilitas lengkap, AC, Wi-Fi 100Mbps, dan parkir mobil luas.',
+            'rules' => '1. Dilarang merokok di dalam kamar. 2. Tamu berkunjung maksimal pukul 22:00 WITA. 3. Menjaga kebersihan area bersama.',
+        ]);
 
-        // 4. Create Games Catalog
-        $gamesData = [
-            ['title' => 'eFootball 2026', 'publisher' => 'Konami', 'genre' => 'Sports', 'min_age_rating' => 3, 'storage_req_gb' => 45],
-            ['title' => 'EA Sports FC 26', 'publisher' => 'EA Sports', 'genre' => 'Sports', 'min_age_rating' => 3, 'storage_req_gb' => 60],
-            ['title' => 'God of War Ragnarok', 'publisher' => 'Sony Interactive', 'genre' => 'Action-Adventure', 'min_age_rating' => 18, 'storage_req_gb' => 110],
-            ['title' => 'Grand Theft Auto V', 'publisher' => 'Rockstar Games', 'genre' => 'Open World', 'min_age_rating' => 18, 'storage_req_gb' => 95],
-            ['title' => 'Tekken 8', 'publisher' => 'Bandai Namco', 'genre' => 'Fighting', 'min_age_rating' => 13, 'storage_req_gb' => 80],
-            ['title' => 'Gran Turismo 7', 'publisher' => 'Sony Interactive', 'genre' => 'Racing', 'min_age_rating' => 3, 'storage_req_gb' => 110],
+        // 4. Create Rooms
+        $roomsData = [
+            ['room_number' => 'A-101', 'room_type' => 'Deluxe AC', 'monthly_rate' => 1200000.00, 'status' => 'occupied', 'size_m2' => 16],
+            ['room_number' => 'A-102', 'room_type' => 'Deluxe AC', 'monthly_rate' => 1200000.00, 'status' => 'occupied', 'size_m2' => 16],
+            ['room_number' => 'A-103', 'room_type' => 'Standard Fan', 'monthly_rate' => 850000.00, 'status' => 'occupied', 'size_m2' => 12],
+            ['room_number' => 'B-201', 'room_type' => 'VIP Balcony', 'monthly_rate' => 1600000.00, 'status' => 'available', 'size_m2' => 20],
+            ['room_number' => 'B-202', 'room_type' => 'VIP Balcony', 'monthly_rate' => 1600000.00, 'status' => 'maintenance', 'size_m2' => 20],
         ];
 
-        $games = [];
-        foreach ($gamesData as $g) {
-            $games[] = Game::create($g);
+        $rooms = [];
+        foreach ($roomsData as $r) {
+            $r['property_id'] = $property1->id;
+            $rooms[] = Room::create($r);
         }
 
-        // 5. Attach Games to Consoles (Pivot table console_game)
-        foreach ($consoles as $console) {
-            $selectedGames = collect($games)->random(3);
-            foreach ($selectedGames as $game) {
-                $console->games()->attach($game->id, [
-                    'installed_at' => now()->subDays(rand(1, 30)),
-                    'storage_size_gb' => $game->storage_req_gb,
-                ]);
-            }
+        // 5. Create Facilities & Attach to Rooms (Pivot facility_room)
+        $facilityData = [
+            ['name' => 'AC 1PK Inverter', 'icon' => 'fa-snowflake', 'description' => 'Pendingin ruangan hemat listrik'],
+            ['name' => 'Wi-Fi High-Speed 100Mbps', 'icon' => 'fa-wifi', 'description' => 'Koneksi internet serat optik tanpa kuota'],
+            ['name' => 'Kamar Mandi Dalam', 'icon' => 'fa-bath', 'description' => 'Shower & toilet duduk di dalam kamar'],
+            ['name' => 'Water Heater', 'icon' => 'fa-shower', 'description' => 'Pemanas air mandi terintegrasi'],
+            ['name' => 'Kasur Springbed Queen Size', 'icon' => 'fa-bed', 'description' => 'Kasur nyaman kualitas premium'],
+        ];
+
+        $facilities = [];
+        foreach ($facilityData as $f) {
+            $facilities[] = Facility::create($f);
         }
 
-        // 6. Create Maintenance Logs for Consoles
-        foreach (array_slice($consoles, 0, 3) as $console) {
-            MaintenanceLog::create([
-                'console_id' => $console->id,
-                'service_date' => now()->subWeeks(2)->toDateString(),
-                'technician_name' => 'Budi Service Station',
-                'cost' => 150000.00,
-                'issue_description' => 'Pembersihan debu kipas pendingin dan penggantian stik controller #2',
-                'action_taken' => 'Deep cleaning, ganti kompot stik analog DualSense',
+        foreach ($rooms as $room) {
+            $room->facilities()->attach(collect($facilities)->pluck('id')->take(3), [
+                'condition' => 'good',
+                'installed_at' => now()->subMonths(3),
             ]);
         }
 
-        // 7. Create Sample Rental Transactions & Payments
-        foreach ($customers as $index => $customer) {
-            $rentedConsole = $consoles[$index];
-            $rentedConsole->update(['status' => 'rented']);
+        // 6. Create Leases & Payments for Occupied Rooms
+        foreach ($tenants as $index => $tenant) {
+            $occupiedRoom = $rooms[$index];
 
-            $rental = Rental::create([
-                'rental_code' => 'RNT-202610' . sprintf('%03d', $index + 1),
-                'user_id' => $customer->id,
-                'start_time' => now(),
-                'end_time' => now()->addDays(2),
-                'total_price' => $rentedConsole->daily_rate * 2,
-                'deposit_amount' => 50000.00,
+            $lease = Lease::create([
+                'lease_code' => 'LSE-202610' . sprintf('%03d', $index + 1),
+                'tenant_id' => $tenant->id,
+                'room_id' => $occupiedRoom->id,
+                'start_date' => now()->startOfMonth()->toDateString(),
+                'end_date' => now()->startOfMonth()->addMonths(6)->toDateString(),
+                'monthly_rent_snapshot' => $occupiedRoom->monthly_rate,
+                'deposit_amount' => 500000.00,
                 'status' => 'active',
-            ]);
-
-            RentalItem::create([
-                'rental_id' => $rental->id,
-                'console_id' => $rentedConsole->id,
-                'duration_days' => 2,
-                'daily_rate_snapshot' => $rentedConsole->daily_rate,
-                'subtotal' => $rentedConsole->daily_rate * 2,
-                'late_fee' => 0.00,
             ]);
 
             Payment::create([
                 'payment_code' => 'PAY-202610' . sprintf('%03d', $index + 1),
-                'rental_id' => $rental->id,
+                'lease_id' => $lease->id,
+                'period_month' => now()->format('Y-m'),
+                'amount' => $lease->monthly_rent_snapshot + $lease->deposit_amount,
                 'method' => 'qris',
-                'amount' => $rental->total_price + $rental->deposit_amount,
                 'status' => 'paid',
                 'paid_at' => now(),
             ]);
         }
+
+        // 7. Create Maintenance Request
+        MaintenanceRequest::create([
+            'ticket_code' => 'TCK-202610001',
+            'room_id' => $rooms[4]->id, // B-202
+            'tenant_id' => $tenants[0]->id,
+            'title' => 'AC Kurang Dingin & Perlu Servis Freon',
+            'description' => 'AC di kamar B-202 terasa hanya menghembuskan angin biasa dan indikator perbaikan menyala.',
+            'priority' => 'high',
+            'status' => 'in_progress',
+            'resolved_at' => null,
+        ]);
     }
 }

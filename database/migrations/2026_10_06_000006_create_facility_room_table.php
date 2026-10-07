@@ -8,20 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('console_game', function (Blueprint $table) {
+        Schema::create('facility_room', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('console_id')->constrained()->onDelete('cascade');
-            $table->foreignId('game_id')->constrained()->onDelete('cascade');
+            $table->foreignId('room_id')->constrained()->onDelete('cascade');
+            $table->foreignId('facility_id')->constrained()->onDelete('cascade');
+            $table->string('condition')->default('good');
             $table->timestamp('installed_at')->useCurrent();
-            $table->integer('storage_size_gb');
             $table->timestamps();
 
-            $table->unique(['console_id', 'game_id']);
+            $table->unique(['room_id', 'facility_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('console_game');
+        Schema::dropIfExists('facility_room');
     }
 };
