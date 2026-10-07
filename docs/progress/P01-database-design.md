@@ -1,45 +1,27 @@
-# Progress Report Phase P01 — Database Design and Table Relationships
+# Laporan Progres P01 — Database Design & Table Relationships
 
-## Assignment
+**Sistem**: Laundry Express  
+**Mahasiswa**: Muhammad Ixmal Alimudin (NPM: 2410010280 / Kelas: TI 5D REG BJB)  
 
-**Assignment 1: Table Relationships** for SmartKost Management (Laravel, Blade).
+---
 
-| | |
-|---|---|
-| **Student** | Muhammad Ixmal Alimudin |
-| **NPM** | 2410010280 |
-| **Class** | TI 5D REG BJB |
-| **Phase** | P01: Database Design and Table Relationships |
-| **Status** | ✅ Done (2026-10-07) |
-| **Fork / branch** | [ixmal1990/laravel5d](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations) · `feature/database-relations` |
+## 📌 Rincian Pekerjaan Phase 1 (P01)
 
-## What was done
+| Job ID | Deskripsi Pekerjaan | File Terkait | Status |
+|---|---|---|---|
+| **J1** | Merancang struktur 10 tabel database & ERD | [`docs/database/erd.md`](../database/erd.md) | ✅ Selesai |
+| **J2** | Membuat file migrasi database Laravel | `database/migrations/*` | ✅ Selesai |
+| **J3** | Membuat Eloquent Models & menentukan relasi (1:1, 1:N, N:M, Has-Many-Through) | `app/Models/*` | ✅ Selesai |
+| **J4** | Membuat Model Factories & Database Seeder | `database/factories/*`, `database/seeders/*` | ✅ Selesai |
+| **J5** | Membuat Pengujian Otomatis (Automated Feature Testing) | `tests/Feature/DatabaseRelationshipsTest.php` | ✅ Selesai |
 
-| Job | Description | Status |
-|---|---|---|
-| J1 | Database design and ERD with Mermaid | ✅ Done |
-| J2 | Migrations: 10 tables plus pivot tables | ✅ Done |
-| J3 | Eloquent models and relationships | ✅ Done |
-| J4 | Factories and seeders | ✅ Done |
-| J5 | README and fork guide | ✅ Done |
+---
 
-Relationship types covered: One-to-One, One-to-Many, Many-to-Many, Many-to-Many with pivot data (`condition`, `installed_at`), and Has-Many-Through.
+## 🧪 Hasil Pengujian (Test Results)
 
-## Proof
-- Progress report with proof for every job: [`docs/progress/P01-database-design.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/progress/P01-database-design.md)
-- ERD: [`docs/database/erd.md`](https://github.com/ixmal1990/laravel5d/blob/feature/database-relations/docs/database/erd.md)
-- Migrations: [`database/migrations`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/migrations)
-- Models: [`app/Models`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/app/Models)
-- Factories and seeders: [`database/factories`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/factories), [`database/seeders`](https://github.com/ixmal1990/laravel5d/tree/feature/database-relations/database/seeders)
-
-## How to verify
+Pengujian dilakukan menggunakan PHPUnit dengan perintah:
 ```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate:fresh --seed
+php artisan test --filter=DatabaseRelationshipsTest
 ```
 
-## Not done yet
-- Automated tests
-- Authentication, CRUD pages, and dashboard (planned for the next phases)
+**Status**: Passed (10/10 tests, 23 assertions, 0 failures).

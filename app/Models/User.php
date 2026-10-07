@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -12,7 +11,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-
     use HasFactory, Notifiable;
 
     protected $fillable = [
@@ -38,7 +36,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the profile associated with the user (1:1 relationship).
+     * Get the user profile associated with the user (1:1 relationship).
      */
     public function profile(): HasOne
     {
@@ -46,34 +44,34 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the properties owned by this user (1:N relationship).
+     * Get laundry orders placed by this customer user (1:N relationship).
      */
-    public function ownedProperties(): HasMany
+    public function laundryOrders(): HasMany
     {
-        return $this->hasMany(Property::class, 'owner_id');
+        return $this->hasMany(LaundryOrder::class, 'customer_id');
     }
 
     /**
-     * Get the lease contracts for this tenant user (1:N relationship).
-     */
-    public function leases(): HasMany
-    {
-        return $this->hasMany(Lease::class, 'tenant_id');
-    }
-
-    /**
-     * Get payments made by the tenant through lease contracts (Has-Many-Through relationship).
+     * Get payments made by the customer through laundry orders (Has-Many-Through relationship).
      */
     public function payments(): HasManyThrough
     {
-        return $this->hasManyThrough(Payment::class, Lease::class, 'tenant_id', 'lease_id');
+        return $this->hasManyThrough(Payment::class, LaundryOrder::class, 'customer_id', 'laundry_order_id');
     }
 
     /**
-     * Get maintenance requests submitted by this tenant (1:N relationship).
+     * Get order status logs updated by this staff user (1:N relationship).
      */
-    public function maintenanceRequests(): HasMany
+    public function statusLogs(): HasMany
     {
-        return $this->hasMany(MaintenanceRequest::class, 'tenant_id');
+        return $this->hasMany(OrderStatusLog::class, 'staff_id');
+    }
+
+    /**
+     * Get customer reviews submitted by this customer (1:N relationship).
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(CustomerReview::class, 'customer_id');
     }
 }

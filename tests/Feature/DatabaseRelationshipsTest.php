@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Models\Facility;
-use App\Models\Lease;
-use App\Models\MaintenanceRequest;
+use App\Models\CustomerReview;
+use App\Models\LaundryOrder;
+use App\Models\OrderItem;
+use App\Models\OrderStatusLog;
 use App\Models\Payment;
-use App\Models\Property;
-use App\Models\PropertyType;
-use App\Models\Room;
+use App\Models\ServiceCategory;
+use App\Models\ServiceItem;
+use App\Models\StorageRack;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,99 +28,107 @@ class DatabaseRelationshipsTest extends TestCase
         $this->assertTrue($profile->user->is($user));
     }
 
-    public function test_it_verifies_one_to_many_property_type_and_properties_relationship()
+    public function test_it_verifies_one_to_many_service_category_and_service_items_relationship()
     {
-        $type = PropertyType::factory()->create();
-        $property = Property::factory()->create(['property_type_id' => $type->id]);
+        $category = ServiceCategory::factory()->create();
+        $item = ServiceItem::factory()->create(['service_category_id' => $category->id]);
 
-        $this->assertCount(1, $type->properties);
-        $this->assertTrue($property->propertyType->is($type));
+        $this->assertCount(1, $category->serviceItems);
+        $this->assertTrue($item->serviceCategory->is($category));
     }
 
-    public function test_it_verifies_one_to_many_owner_user_and_properties_relationship()
+    public function test_it_verifies_one_to_many_customer_user_and_laundry_orders_relationship()
     {
-        $owner = User::factory()->create(['role' => 'owner']);
-        $property = Property::factory()->create(['owner_id' => $owner->id]);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $order = LaundryOrder::factory()->create(['customer_id' => $customer->id]);
 
-        $this->assertCount(1, $owner->ownedProperties);
-        $this->assertTrue($property->owner->is($owner));
+        $this->assertCount(1, $customer->laundryOrders);
+        $this->assertTrue($order->customer->is($customer));
     }
 
-    public function test_it_verifies_one_to_many_property_and_rooms_relationship()
+    public function test_it_verifies_one_to_many_storage_rack_and_laundry_orders_relationship()
     {
-        $property = Property::factory()->create();
-        $room1 = Room::factory()->create(['property_id' => $property->id]);
-        $room2 = Room::factory()->create(['property_id' => $property->id]);
+        $rack = StorageRack::factory()->create();
+        $order1 = LaundryOrder::factory()->create(['rack_id' => $rack->id]);
+        $order2 = LaundryOrder::factory()->create(['rack_id' => $rack->id]);
 
-        $this->assertCount(2, $property->rooms);
-        $this->assertTrue($room1->property->is($property));
-        $this->assertTrue($room2->property->is($property));
+        $this->assertCount(2, $rack->laundryOrders);
+        $this->assertTrue($order1->rack->is($rack));
+        $this->assertTrue($order2->rack->is($rack));
     }
 
-    public function test_it_verifies_many_to_many_room_and_facilities_relationship_with_pivot_data()
+    public function test_it_verifies_many_to_many_laundry_order_and_service_items_relationship_with_pivot_data()
     {
-        $room = Room::factory()->create();
-        $facility = Facility::factory()->create();
+        $order = LaundryOrder::factory()->create();
+        $service = ServiceItem::factory()->create(['price_per_unit' => 10000]);
 
-        $room->facilities()->attach($facility->id, [
-            'condition' => 'good',
-            'installed_at' => now(),
+        $order->serviceItems()->attach($service->id, [
+            'qty' => 3,
+            'price_snapshot' => 10000,
+            'subtotal' => 30000,
+            'notes' => 'Pakaian putih dipisah',
         ]);
 
-        $this->assertTrue($room->facilities->contains($facility));
-        $this->assertEquals('good', $room->facilities->first()->pivot->condition);
-        $this->assertTrue($facility->rooms->contains($room));
+        $this->assertTrue($order->serviceItems->contains($service));
+        $this->assertEquals(3, $order->serviceItems->first()->pivot->qty);
+        $this->assertEquals(30000, $order->serviceItems->first()->pivot->subtotal);
+        $this->assertTrue($service->laundryOrders->contains($order));
     }
 
-    public function test_it_verifies_one_to_many_tenant_user_and_leases_relationship()
+    public function test_it_verifies_one_to_many_laundry_order_and_payments_relationship()
     {
-        $tenant = User::factory()->create(['role' => 'tenant']);
-        $lease = Lease::factory()->create(['tenant_id' => $tenant->id]);
+        $order = LaundryOrder::factory()->create();
+        $payment = Payment::factory()->create(['laundry_order_id' => $order->id]);
 
-        $this->assertCount(1, $tenant->leases);
-        $this->assertTrue($lease->tenant->is($tenant));
+        $this->assertCount(1, $order->payments);
+        $this->assertTrue($payment->laundryOrder->is($order));
     }
 
-    public function test_it_verifies_one_to_many_lease_and_payments_relationship()
+    public function test_it_verifies_has_many_through_customer_user_to_payments_relationship()
     {
-        $lease = Lease::factory()->create();
-        $payment = Payment::factory()->create(['lease_id' => $lease->id]);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $order = LaundryOrder::factory()->create(['customer_id' => $customer->id]);
+        $payment = Payment::factory()->create(['laundry_order_id' => $order->id]);
 
-        $this->assertCount(1, $lease->payments);
-        $this->assertTrue($payment->lease->is($lease));
+        $this->assertCount(1, $customer->payments);
+        $this->assertTrue($customer->payments->first()->is($payment));
     }
 
-    public function test_it_verifies_has_many_through_user_to_payments_relationship()
+    public function test_it_verifies_has_many_through_service_category_to_order_items_relationship()
     {
-        $tenant = User::factory()->create(['role' => 'tenant']);
-        $lease = Lease::factory()->create(['tenant_id' => $tenant->id]);
-        $payment = Payment::factory()->create(['lease_id' => $lease->id]);
+        $category = ServiceCategory::factory()->create();
+        $service = ServiceItem::factory()->create(['service_category_id' => $category->id]);
+        $orderItem = OrderItem::factory()->create(['service_item_id' => $service->id]);
 
-        $this->assertCount(1, $tenant->payments);
-        $this->assertTrue($tenant->payments->first()->is($payment));
+        $this->assertCount(1, $category->orderItems);
+        $this->assertTrue($category->orderItems->first()->is($orderItem));
     }
 
-    public function test_it_verifies_has_many_through_property_to_leases_relationship()
+    public function test_it_verifies_one_to_many_laundry_order_and_status_logs_relationship()
     {
-        $property = Property::factory()->create();
-        $room = Room::factory()->create(['property_id' => $property->id]);
-        $lease = Lease::factory()->create(['room_id' => $room->id]);
-
-        $this->assertCount(1, $property->leases);
-        $this->assertTrue($property->leases->first()->is($lease));
-    }
-
-    public function test_it_verifies_one_to_many_room_and_maintenance_requests_relationship()
-    {
-        $room = Room::factory()->create();
-        $tenant = User::factory()->create(['role' => 'tenant']);
-        $ticket = MaintenanceRequest::factory()->create([
-            'room_id' => $room->id,
-            'tenant_id' => $tenant->id,
+        $order = LaundryOrder::factory()->create();
+        $staff = User::factory()->create(['role' => 'staff']);
+        $log = OrderStatusLog::factory()->create([
+            'laundry_order_id' => $order->id,
+            'staff_id' => $staff->id,
         ]);
 
-        $this->assertCount(1, $room->maintenanceRequests);
-        $this->assertTrue($ticket->room->is($room));
-        $this->assertTrue($ticket->tenant->is($tenant));
+        $this->assertCount(1, $order->statusLogs);
+        $this->assertTrue($log->laundryOrder->is($order));
+        $this->assertTrue($log->staff->is($staff));
+    }
+
+    public function test_it_verifies_one_to_one_laundry_order_and_customer_review_relationship()
+    {
+        $order = LaundryOrder::factory()->create();
+        $customer = User::factory()->create(['role' => 'customer']);
+        $review = CustomerReview::factory()->create([
+            'laundry_order_id' => $order->id,
+            'customer_id' => $customer->id,
+        ]);
+
+        $this->assertTrue($order->review->is($review));
+        $this->assertTrue($review->laundryOrder->is($order));
+        $this->assertTrue($review->customer->is($customer));
     }
 }

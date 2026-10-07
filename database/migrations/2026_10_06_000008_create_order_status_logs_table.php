@@ -8,19 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('user_profiles', function (Blueprint $table) {
+        Schema::create('order_status_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('nik')->nullable();
-            $table->string('emergency_contact')->nullable();
+            $table->foreignId('laundry_order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('staff_id')->constrained('users')->cascadeOnDelete();
+            $table->string('previous_status');
+            $table->string('new_status');
             $table->text('notes')->nullable();
-            $table->string('avatar_url')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('user_profiles');
+        Schema::dropIfExists('order_status_logs');
     }
 };

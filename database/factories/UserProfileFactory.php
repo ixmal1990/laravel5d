@@ -6,9 +6,6 @@ use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UserProfile>
- */
 class UserProfileFactory extends Factory
 {
     protected $model = UserProfile::class;
@@ -17,11 +14,10 @@ class UserProfileFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'nik' => $this->faker->numerify('6371############'),
+            'nik' => $this->faker->numerify('6371##############'),
             'emergency_contact' => $this->faker->phoneNumber(),
-            'occupation' => $this->faker->randomElement(['Mahasiswa UNISKA', 'Karyawan Swasta', 'PNS', 'Wirausaha']),
-            'bio' => $this->faker->sentence(),
-            'avatar_url' => 'https://i.pravatar.cc/150?u=' . $this->faker->uuid(),
+            'notes' => $this->faker->sentence(),
+            'avatar_url' => 'https://ui-avatars.com/api/?name=' . urlencode($this->faker->name()),
         ];
     }
 }

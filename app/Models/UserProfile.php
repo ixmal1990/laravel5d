@@ -14,8 +14,7 @@ class UserProfile extends Model
         'user_id',
         'nik',
         'emergency_contact',
-        'occupation',
-        'bio',
+        'notes',
         'avatar_url',
     ];
 

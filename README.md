@@ -1,4 +1,4 @@
-# SmartKost — Sistem Informasi Manajemen Sewa Kost & Kontrakan
+# Laundry Express — Sistem Informasi Manajemen Services Laundry
 
 > **Tugas 1 (Assignment 1)**: Database Design and Table Relationships  
 > **Mata Kuliah**: Pemrograman Berbasis Objek 2 (PBO 2) / Laravel Framework  
@@ -20,7 +20,7 @@
 
 ## 📌 Ringkasan Proyek
 
-**SmartKost** adalah aplikasi sistem informasi berbasis web yang dirancang menggunakan framework Laravel 11/12 untuk mengelola bisnis persewaan rumah kost dan kontrakan. Sistem ini memfasilitasi pencatatan lokasi properti, kategori tipe hunian, kamar sewa, katalog fasilitas kamar, transaksi kontrak sewa (*lease*), tagihan pembayaran bulanan, hingga pengajuan perbaikan/perawatan kamar (*maintenance requests*).
+**Laundry Express** adalah aplikasi sistem informasi manajemen jasa laundry berbasis web yang dirancang menggunakan framework Laravel 11/12 untuk mengelola operasional bisnis laundry kiloan, satuan spesialis (bedcover, jas, gaun), hingga perawatan sepatu & tas. Sistem ini mengelola data pelanggan, katalog kategori & layanan, nomor rak penyimpanan pakaian, pendaftaran transaksi cucian (*laundry orders*), rincian item, transaksi pembayaran, riwayat perubahan status pengerjaan (*status logs*), hingga ulasan kepuasan pelanggan (*customer reviews*).
 
 ---
 
@@ -28,16 +28,16 @@
 
 Sistem ini memiliki **10 tabel database** yang saling terhubung:
 
-1. **`users`**: Data pengguna (Owner, Tenant, Staff).
-2. **`user_profiles`**: Profil detail pengguna (NIK, kontak darurat, pekerjaan, avatar).
-3. **`property_types`**: Kategori tipe hunian (Kost Putra, Kost Putri, Kost Exclusive, Kontrakan Rumah).
-4. **`properties`**: Lokasi properti kost (nama properti, pemilik/owner, alamat, aturan kost).
-5. **`rooms`**: Unit kamar sewa (nomor kamar, tipe kamar, tarif sewa bulanan, status kamar).
-6. **`facilities`**: Katalog fasilitas kamar (AC, Wi-Fi 100Mbps, Kamar Mandi Dalam, Water Heater).
-7. **`facility_room`**: Tabel pivot N:M antara kamar & fasilitas (`condition`, `installed_at`).
-8. **`leases`**: Kontrak transaksi sewa (kode kontrak, penyewa/tenant, kamar, tanggal sewa, deposit).
-9. **`payments`**: Transaksi pembayaran sewa (periode bulan, metode pembayaran, jumlah, status).
-10. **`maintenance_requests`**: Tiket pengaduan keluhan & perbaikan kamar oleh penyewa.
+1. **`users`**: Data pengguna (Admin, Staff Operator, Customer).
+2. **`user_profiles`**: Profil detail pengguna (NIK, kontak darurat, catatan tambahan, avatar).
+3. **`service_categories`**: Kategori layanan (Layanan Kiloan, Satuan & Spesialis, Sepatu & Tas).
+4. **`service_items`**: Detail layanan (Cuci Komplit, Cuci Express, Bedcover, Deep Clean Sneakers).
+5. **`storage_racks`**: Rak lokasi penyimpanan pakaian siap ambil (Kode Rak, Zona, Kapasitas).
+6. **`laundry_orders`**: Transaksi penerimaan order laundry (Kode Order, Pelanggan, Rak, Total Berat, Total Bayar, Status).
+7. **`order_items`**: Detail item rincian pesanan laundry (N:M pivot antara Order & ServiceItem).
+8. **`payments`**: Catatan transaksi pembayaran order laundry (Kode Pembayaran, Metode, Status, Tanggal Bayar).
+9. **`order_status_logs`**: Log historis pergeseran status pengerjaan laundry oleh Staff.
+10. **`customer_reviews`**: Ulasan dan rating kepuasan pelanggan atas order laundry.
 
 ---
 
@@ -46,15 +46,15 @@ Sistem ini memiliki **10 tabel database** yang saling terhubung:
 | Relasi | Model Asal | Model Tujuan | Jenis Relasi | Keterangan |
 |---|---|---|---|---|
 | 1 | `User` | `UserProfile` | **One-to-One (1:1)** | Profil pengguna terhubung 1:1 dengan User |
-| 2 | `PropertyType` | `Property` | **One-to-Many (1:N)** | Kategori tipe hunian membawahi banyak properti |
-| 3 | `User` (Owner) | `Property` | **One-to-Many (1:N)** | Pemilik (*Owner*) memiliki banyak lokasi properti |
-| 4 | `Property` | `Room` | **One-to-Many (1:N)** | Lokasi properti memiliki banyak unit kamar |
-| 5 | `Room` | `Facility` | **Many-to-Many (N:M)** | Kamar dilengkapi fasilitas melalui `facility_room` |
-| 6 | `User` (Tenant) | `Lease` | **One-to-Many (1:N)** | Penyewa (*Tenant*) memiliki kontrak transaksi sewa |
-| 7 | `Lease` | `Payment` | **One-to-Many (1:N)** | Kontrak sewa memiliki catatan tagihan pembayaran |
-| 8 | `User` | `Payment` | **Has-Many-Through** | Mengakses pembayaran Penyewa melalui kontrak Lease |
-| 9 | `Property` | `Lease` | **Has-Many-Through** | Mengakses kontrak sewa di Properti melalui unit Room |
-| 10 | `Room` | `MaintenanceRequest` | **One-to-Many (1:N)** | Kamar memiliki tiket keluhan perbaikan |
+| 2 | `ServiceCategory` | `ServiceItem` | **One-to-Many (1:N)** | Kategori layanan membawahi banyak item service |
+| 3 | `User` (Customer) | `LaundryOrder` | **One-to-Many (1:N)** | Pelanggan (*Customer*) memiliki banyak pesanan laundry |
+| 4 | `StorageRack` | `LaundryOrder` | **One-to-Many (1:N)** | Rak penyimpanan menampung banyak pesanan laundry |
+| 5 | `LaundryOrder` | `ServiceItem` | **Many-to-Many (N:M)** | Order berisi item service melalui `order_items` |
+| 6 | `LaundryOrder` | `Payment` | **One-to-Many (1:N)** | Pesanan laundry memiliki catatan tagihan pembayaran |
+| 7 | `User` (Customer) | `Payment` | **Has-Many-Through** | Mengakses pembayaran Pelanggan melalui pesanan LaundryOrder |
+| 8 | `ServiceCategory` | `OrderItem` | **Has-Many-Through** | Mengakses rincian item order di Kategori melalui ServiceItem |
+| 9 | `LaundryOrder` | `OrderStatusLog` | **One-to-Many (1:N)** | Pesanan laundry memiliki log historis perubahan status |
+| 10 | `LaundryOrder` | `CustomerReview` | **One-to-One (1:1)** | Pesanan laundry memiliki 1 ulasan kepuasan dari pelanggan |
 
 ---
 

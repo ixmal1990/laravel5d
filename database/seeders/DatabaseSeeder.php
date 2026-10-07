@@ -2,145 +2,154 @@
 
 namespace Database\Seeders;
 
-use App\Models\Facility;
-use App\Models\Lease;
-use App\Models\MaintenanceRequest;
+use App\Models\CustomerReview;
+use App\Models\LaundryOrder;
+use App\Models\OrderItem;
+use App\Models\OrderStatusLog;
 use App\Models\Payment;
-use App\Models\Property;
-use App\Models\PropertyType;
-use App\Models\Room;
+use App\Models\ServiceCategory;
+use App\Models\ServiceItem;
+use App\Models\StorageRack;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // 1. Create Owner User
-        $owner = User::create([
+        // 1. Seed Users (Admin, Staff, Customers)
+        $admin = User::create([
             'name' => 'Muhammad Ixmal Alimudin',
-            'email' => 'ixmal@smartkost.com',
-            'password' => bcrypt('password123'),
-            'role' => 'owner',
+            'email' => 'admin@laundryexpress.id',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
             'phone' => '081234567890',
-            'address' => 'Jl. Ahmad Yani KM 36, Banjarbaru',
+            'address' => 'Jl. Ahmad Yani No. 45, Banjarbaru',
+        ]);
+        UserProfile::factory()->create([
+            'user_id' => $admin->id,
+            'notes' => 'Owner & Head Administrator Laundry Express',
         ]);
 
-        UserProfile::create([
-            'user_id' => $owner->id,
-            'nik' => '6371012809900001',
-            'emergency_contact' => '089876543210',
-            'occupation' => 'Pemilik Kost & Pengusaha',
-            'bio' => 'Owner & Property Manager SmartKost System',
-            'avatar_url' => 'https://avatars.githubusercontent.com/u/204449595?v=4',
+        $staff = User::create([
+            'name' => 'Siti Rahmah (Operator)',
+            'email' => 'staff@laundryexpress.id',
+            'password' => bcrypt('password'),
+            'role' => 'staff',
+            'phone' => '089876543210',
+            'address' => 'Jl. Panglima Batur No. 12, Banjarbaru',
+        ]);
+        UserProfile::factory()->create(['user_id' => $staff->id]);
+
+        $customers = User::factory(5)->create(['role' => 'customer']);
+        foreach ($customers as $cust) {
+            UserProfile::factory()->create(['user_id' => $cust->id]);
+        }
+
+        // 2. Seed Service Categories & Items
+        $catKiloan = ServiceCategory::create([
+            'name' => 'Layanan Kiloan',
+            'slug' => 'layanan-kiloan',
+            'description' => 'Cuci pakaian harian ditimbang per kilogram',
         ]);
 
-        // Create 3 Tenant Users with Profiles
-        $tenants = User::factory(3)->create(['role' => 'tenant']);
-        foreach ($tenants as $tenant) {
-            UserProfile::factory()->create(['user_id' => $tenant->id]);
-        }
-
-        // 2. Create Property Types
-        $typeData = [
-            ['name' => 'Kost Putra', 'slug' => 'kost-putra', 'description' => 'Khusus hunian mahasiswa & pekerja pria'],
-            ['name' => 'Kost Putri', 'slug' => 'kost-putri', 'description' => 'Khusus hunian mahasiswi & pekerja wanita dengan akses keamanan 24 jam'],
-            ['name' => 'Kost Exclusive Campur', 'slug' => 'kost-exclusive', 'description' => 'Kost bebas dengan fasilitas lengkap setara hotel bintang 3'],
-            ['name' => 'Kontrakan Rumah', 'slug' => 'kontrakan-rumah', 'description' => 'Rumah sewa keluarga 2-3 kamar tidur'],
-        ];
-
-        $propertyTypes = [];
-        foreach ($typeData as $t) {
-            $propertyTypes[] = PropertyType::create($t);
-        }
-
-        // 3. Create Properties
-        $property1 = Property::create([
-            'property_type_id' => $propertyTypes[2]->id, // Kost Exclusive Campur
-            'owner_id' => $owner->id,
-            'name' => 'SmartKost Executive Banjarbaru',
-            'address' => 'Jl. Uniska No. 12, Sei Besar, Banjarbaru',
-            'city' => 'Banjarbaru',
-            'description' => 'Kost exclusive terdekat dari kampus UNISKA Banjarbaru dengan fasilitas lengkap, AC, Wi-Fi 100Mbps, dan parkir mobil luas.',
-            'rules' => '1. Dilarang merokok di dalam kamar. 2. Tamu berkunjung maksimal pukul 22:00 WITA. 3. Menjaga kebersihan area bersama.',
+        $catSatuan = ServiceCategory::create([
+            'name' => 'Layanan Satuan & Spesialis',
+            'slug' => 'layanan-satuan-spesialis',
+            'description' => 'Cuci khusus bedcover, jas, gaun, dan karpet per buah',
         ]);
 
-        // 4. Create Rooms
-        $roomsData = [
-            ['room_number' => 'A-101', 'room_type' => 'Deluxe AC', 'monthly_rate' => 1200000.00, 'status' => 'occupied', 'size_m2' => 16],
-            ['room_number' => 'A-102', 'room_type' => 'Deluxe AC', 'monthly_rate' => 1200000.00, 'status' => 'occupied', 'size_m2' => 16],
-            ['room_number' => 'A-103', 'room_type' => 'Standard Fan', 'monthly_rate' => 850000.00, 'status' => 'occupied', 'size_m2' => 12],
-            ['room_number' => 'B-201', 'room_type' => 'VIP Balcony', 'monthly_rate' => 1600000.00, 'status' => 'available', 'size_m2' => 20],
-            ['room_number' => 'B-202', 'room_type' => 'VIP Balcony', 'monthly_rate' => 1600000.00, 'status' => 'maintenance', 'size_m2' => 20],
-        ];
+        $catSepatu = ServiceCategory::create([
+            'name' => 'Sepatu & Tas',
+            'slug' => 'sepatu-tas',
+            'description' => 'Deep cleaning dan perawatan sepatu & tas kesayangan',
+        ]);
 
-        $rooms = [];
-        foreach ($roomsData as $r) {
-            $r['property_id'] = $property1->id;
-            $rooms[] = Room::create($r);
-        }
+        $itemKiloanReg = ServiceItem::create([
+            'service_category_id' => $catKiloan->id,
+            'name' => 'Cuci Komplit Reguler (Cuci + Setrika + Harum)',
+            'price_per_unit' => 7000,
+            'unit_type' => 'kg',
+            'estimated_hours' => 24,
+        ]);
 
-        // 5. Create Facilities & Attach to Rooms (Pivot facility_room)
-        $facilityData = [
-            ['name' => 'AC 1PK Inverter', 'icon' => 'fa-snowflake', 'description' => 'Pendingin ruangan hemat listrik'],
-            ['name' => 'Wi-Fi High-Speed 100Mbps', 'icon' => 'fa-wifi', 'description' => 'Koneksi internet serat optik tanpa kuota'],
-            ['name' => 'Kamar Mandi Dalam', 'icon' => 'fa-bath', 'description' => 'Shower & toilet duduk di dalam kamar'],
-            ['name' => 'Water Heater', 'icon' => 'fa-shower', 'description' => 'Pemanas air mandi terintegrasi'],
-            ['name' => 'Kasur Springbed Queen Size', 'icon' => 'fa-bed', 'description' => 'Kasur nyaman kualitas premium'],
-        ];
+        $itemKiloanExp = ServiceItem::create([
+            'service_category_id' => $catKiloan->id,
+            'name' => 'Cuci Komplit Express 6 Jam',
+            'price_per_unit' => 12000,
+            'unit_type' => 'kg',
+            'estimated_hours' => 6,
+        ]);
 
-        $facilities = [];
-        foreach ($facilityData as $f) {
-            $facilities[] = Facility::create($f);
-        }
+        $itemBedcover = ServiceItem::create([
+            'service_category_id' => $catSatuan->id,
+            'name' => 'Cuci Bedcover Jumbo',
+            'price_per_unit' => 35000,
+            'unit_type' => 'pcs',
+            'estimated_hours' => 24,
+        ]);
 
-        foreach ($rooms as $room) {
-            $room->facilities()->attach(collect($facilities)->pluck('id')->take(3), [
-                'condition' => 'good',
-                'installed_at' => now()->subMonths(3),
+        $itemSepatu = ServiceItem::create([
+            'service_category_id' => $catSepatu->id,
+            'name' => 'Deep Clean Sneakers / Shoes',
+            'price_per_unit' => 30000,
+            'unit_type' => 'pair',
+            'estimated_hours' => 48,
+        ]);
+
+        // 3. Seed Racks
+        $rackA1 = StorageRack::create(['code' => 'RAK-A1', 'section' => 'Zona Kiloan Selesai', 'capacity' => 10]);
+        $rackB1 = StorageRack::create(['code' => 'RAK-B1', 'section' => 'Zona Express & Satuan', 'capacity' => 10]);
+        $rackC1 = StorageRack::create(['code' => 'RAK-C1', 'section' => 'Zona Sepatu & Tas', 'capacity' => 5]);
+
+        // 4. Seed Laundry Orders, Items, Payments, Logs, and Reviews
+        foreach ($customers as $index => $customer) {
+            $order = LaundryOrder::create([
+                'order_code' => 'LND-' . date('Ymd') . '-' . sprintf('%03d', $index + 1),
+                'customer_id' => $customer->id,
+                'rack_id' => ($index % 2 == 0) ? $rackA1->id : $rackB1->id,
+                'total_weight_kg' => 4.5,
+                'total_amount' => 31500,
+                'discount_amount' => 0,
+                'final_amount' => 31500,
+                'status' => 'ready_for_pickup',
+                'pickup_deadline' => now()->addDays(1),
             ]);
-        }
 
-        // 6. Create Leases & Payments for Occupied Rooms
-        foreach ($tenants as $index => $tenant) {
-            $occupiedRoom = $rooms[$index];
-
-            $lease = Lease::create([
-                'lease_code' => 'LSE-202610' . sprintf('%03d', $index + 1),
-                'tenant_id' => $tenant->id,
-                'room_id' => $occupiedRoom->id,
-                'start_date' => now()->startOfMonth()->toDateString(),
-                'end_date' => now()->startOfMonth()->addMonths(6)->toDateString(),
-                'monthly_rent_snapshot' => $occupiedRoom->monthly_rate,
-                'deposit_amount' => 500000.00,
-                'status' => 'active',
+            OrderItem::create([
+                'laundry_order_id' => $order->id,
+                'service_item_id' => $itemKiloanReg->id,
+                'qty' => 4,
+                'price_snapshot' => 7000,
+                'subtotal' => 28000,
+                'notes' => 'Pakaian warna dipisah dari putih',
             ]);
 
             Payment::create([
-                'payment_code' => 'PAY-202610' . sprintf('%03d', $index + 1),
-                'lease_id' => $lease->id,
-                'period_month' => now()->format('Y-m'),
-                'amount' => $lease->monthly_rent_snapshot + $lease->deposit_amount,
-                'method' => 'qris',
+                'payment_code' => 'PAY-' . strtoupper(Str::random(8)),
+                'laundry_order_id' => $order->id,
+                'amount' => 31500,
+                'payment_method' => 'qris',
                 'status' => 'paid',
                 'paid_at' => now(),
             ]);
-        }
 
-        // 7. Create Maintenance Request
-        MaintenanceRequest::create([
-            'ticket_code' => 'TCK-202610001',
-            'room_id' => $rooms[4]->id, // B-202
-            'tenant_id' => $tenants[0]->id,
-            'title' => 'AC Kurang Dingin & Perlu Servis Freon',
-            'description' => 'AC di kamar B-202 terasa hanya menghembuskan angin biasa dan indikator perbaikan menyala.',
-            'priority' => 'high',
-            'status' => 'in_progress',
-            'resolved_at' => null,
-        ]);
+            OrderStatusLog::create([
+                'laundry_order_id' => $order->id,
+                'staff_id' => $staff->id,
+                'previous_status' => 'washing',
+                'new_status' => 'ready_for_pickup',
+                'notes' => 'Pakaian sudah selesai disetrika dan dikemas di Rak',
+            ]);
+
+            CustomerReview::create([
+                'laundry_order_id' => $order->id,
+                'customer_id' => $customer->id,
+                'rating' => 5,
+                'comment' => 'Harum sekali cuciannya dan selesai tepat waktu!',
+            ]);
+        }
     }
 }
